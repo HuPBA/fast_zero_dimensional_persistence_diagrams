@@ -1,0 +1,6 @@
+/.vscode/
+/build/
+/dist/
+/fast_zero_persistence_diagram.egg-info/
+/sample.egg-info/
+/.idea/
