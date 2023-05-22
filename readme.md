@@ -1,6 +1,6 @@
 # Fast computation of zero dimensional Vietoris-Rips persistence diagrams.
 
-Zero dimensional persistence diagrams computed using the Vietoris-Rips filtration for a point cloud $X$ and a symmetric function $d(x,y)\geq 0$ such that $d(x,x)=0$ can be computed as the multisets of points $\{(0,d):d\in\text{MST}(X,d)\}$, where $\text{MST}(X,d)$ is the multiset of edge weights in the minimum spanning tree of the clique graph $G=(X,E)$ with edge weights $d(x,y)$. In particular, these weights can be computed using the single-linkage clustering algorithm. The single-linkage algorithm has a complexity of $\mathcal{O}(n^2)$, lower than the usual matrix reduction algorithms to compute persistence diagrams. In this repo, we adapt the code of the [single linkage algorithm imlpemented by SciPy](https://github.com/scipy/scipy/blob/v1.10.1/scipy/cluster/_hierarchy.pyx) in such a way it also returns the indices of the distance matrix corresponding to each of the weights of the minimum spanning tree. This way, differentiating persistence diagrams using autograd algorithms is very simple: examples for PyTorch and Tensorflow frameworks are included in the ``examples`` subfolder. 
+Zero-dimensional persistence diagrams computed using the Vietoris-Rips filtration for a point cloud $X$ and a symmetric function $d(x,y)\geq 0$ such that $d(x,x)=0$ can be computed as the multisets of points $\{(0,d):d\in\text{MST}(X,d)\}$, where $\text{MST}(X,d)$ is the multiset of edge weights in the minimum spanning tree of the clique graph $G=(X,E)$ with edge weights $d(x,y)$. In particular, these weights can be computed using the single linkage clustering algorithm. The single-linkage algorithm has a complexity of $\mathcal{O}(n^2)$, lower than the usual matrix reduction algorithms to compute persistence diagrams. In this repo, we adapt the code of the [single linkage algorithm implemented by SciPy](https://github.com/scipy/scipy/blob/v1.10.1/scipy/cluster/_hierarchy.pyx) in such a way it also returns the indices of the distance matrix corresponding to each of the weights of the minimum spanning tree. This way, differentiating persistence diagrams using autograd algorithms is very simple: examples for PyTorch and Tensorflow frameworks are included in the ``examples`` subfolder. 
 
 The file ``comparison_methods.py`` contains a code prepared to compare the performances of the main software packages for computing persistence diagrams, Gudhi and Ripser, the ``scipy`` implementation of the single linkage clustering algorithm, and our slightly modified implementation. For a basic test, the following table contains the execution time, in seconds, of each method for point clouds in $\mathbb R^2$ of 10, 100, 1000, and 10000 points, respectively.
 
@@ -15,7 +15,7 @@ As you can see, differences between performances can be seen even for the comput
 
 ## Installation
 
-You can install the package directly by executing the command:
+You can install the package directly using the command:
 
 ``pip install git+https://github.com/HuPBA/fast_zero_dimensional_persistence_diagrams``
 
@@ -25,7 +25,7 @@ To use the package, you first need to import it:
 
 ``import zero_persistence_diagram``
 
-Then, you can use it with the header
+Then, you can use it with the following header.
 
 ``zero_persistence_diagram.zero_persistence_diagram_by_single_linkage_algorithm(condensed_distance_matrix)
 ``
@@ -46,12 +46,11 @@ def get_indices_from_condensed_index(condensed_index, number_of_points):
     return i, j
 ```
 
-To generate differentiable zero dimensional persistence diagrams, you can use the following pieces of code. For Tensorflow:
+To generate differentiable zero-dimensional persistence diagrams, you can use the following pieces of code. For Tensorflow:
 
 ```
 def compute_differentiable_persistence_diagram(point_cloud):
-    # Compute the distance matrix. Note that the computation must be using a function
-    # that is differentiable with respect to the point cloud.
+    # Compute the distance matrix. Note that the computation must be using a function that is differentiable with respect to the point cloud.
     distance_matrix = compute_distance_matrix(point_cloud)
     # Compute the persistence diagram without backprop
     condensed_distance_matrix = scipy.spatial.distance.squareform(tf.stop_gradient(distance_matrix).numpy(),
@@ -60,7 +59,7 @@ def compute_differentiable_persistence_diagram(point_cloud):
         condensed_distance_matrix)
     pairs = tf.constant([get_indices_from_condensed_index(condensed_index, point_cloud.shape[0]) for condensed_index in
                          condensed_pairs])
-    # Filter the distance matrix to have the pairs we want
+    # Filter the distance matrix to have the pairs we want.
     pd_according_to_pairs = tf.gather_nd(distance_matrix, pairs)
     return pd_according_to_pairs
 ```
